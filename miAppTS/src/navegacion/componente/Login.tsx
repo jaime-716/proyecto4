@@ -27,7 +27,7 @@ export default function Login({ navigation }: any) {
       const db = await inicializarBaseDatos();
 
       // Buscamos el usuario
-      const usuario = await db.getFirstAsync(
+      const usuario:any= await db.getFirstAsync(
         "SELECT * FROM usuarios WHERE correo = ? AND password = ?",
         correo,
         password,
@@ -38,7 +38,14 @@ export default function Login({ navigation }: any) {
         Alert.alert("Éxito", "Bienvenido");
         setCorreo("");
         setPassword("");
-        navigation.navigate("Home");
+
+      if (usuario.esAdministrador === 1) {
+    navigation.navigate("Administrador");
+  } else {
+    navigation.navigate("Home");
+  }
+
+        //navigation.navigate("Home");
       } else {
         // Si no encontramos el usuario
         Alert.alert("Error", "El correo o la contraseña son incorrectos");

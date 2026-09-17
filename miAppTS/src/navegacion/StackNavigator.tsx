@@ -10,6 +10,7 @@ import Lista from "./componente/Lista";
 import EjemploModal from "./componente/EjemploModal";
 import Login from "./componente/Login";
 import Registro from "./componente/Registro";
+import Administrador from "./componente/Administrador";
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,8 @@ export default function StackNavigator() {
         <Stack.Screen name="Lista" component={Lista} />
         <Stack.Screen name="Modal" component={EjemploModal} />
         <Stack.Screen name="Registro" component={Registro} />
+        <Stack.Screen name="Administrador" component={Administrador}
+/>
       </Stack.Navigator>
     </NavigationContainer>
   );
