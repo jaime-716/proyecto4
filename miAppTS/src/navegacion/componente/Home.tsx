@@ -5,39 +5,35 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.botonTexto}>
-        <Text style={styles.textoBoton}>Texto</Text>
+        <Text style={styles.textoBoton}>Clientes</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.botonInput}>
-        <Text style={styles.textoBoton}>Input</Text>
+        <Text style={styles.textoBoton}>Productos</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.botonBoton}>
         <Text style={styles.textoBoton}>Boton</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.botonLista}>
-        <Text style={styles.textoBoton}>Lista</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.botonModal}>
-        <Text style={styles.textoBoton}>Modal</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#0E0B0BE5",
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    alignItems: "flex-start",
+    gap: 10,
+    paddingHorizontal: 10,
+    paddingTop: 30,
   },
 
   botonTexto: {
-    backgroundColor: "#05A5F0",
+    backgroundColor: "white",
     width: 100,
-    padding: 15,
+    padding: 5,
     borderRadius: 10,
     marginBottom: 10,
   },
@@ -45,38 +41,21 @@ const styles = StyleSheet.create({
   textoBoton: {
     color: "#010D13",
     textAlign: "center",
-    fontWeight: "bold",
     fontSize: 16,
   },
 
   botonInput: {
-    backgroundColor: "#05A5F0",
+    backgroundColor: "white",
     width: 100,
-    padding: 15,
+    padding: 5,
     borderRadius: 10,
     marginBottom: 10,
   },
 
   botonBoton: {
-    backgroundColor: "#05A5F0",
+    backgroundColor: "white",
     width: 100,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  botonLista: {
-    backgroundColor: "#05A5F0",
-    width: 100,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  botonModal: {
-    backgroundColor: "#05A5F0",
-    width: 100,
-    padding: 15,
+    padding: 5,
     borderRadius: 10,
     marginBottom: 10,
   },

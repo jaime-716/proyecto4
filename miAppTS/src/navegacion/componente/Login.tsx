@@ -4,15 +4,49 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
+import { inicializarBaseDatos } from "../../database/database";
+import Ionicons from "@expo/vector-icons/Ionicons";
+//<Ionicons name="eye-outline" size={24} color="black" />
 
 export default function Login({ navigation }: any) {
   const [correo, setCorreo] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const iniciarSesion = () => {
-    console.log("Correo:", correo);
-    console.log("Contraseña:", contrasena);
+  const [password, setPassword] = useState("");
+  const [mostrarPassword, setMostrarPassword] = useState(false);
+
+  const iniciarSesion = async () => {
+    // Verificar que los campos no estén vacíos
+    if (correo === "" || password === "") {
+      Alert.alert("Error", "Debes llenar todos los campos");
+      return;
+    }
+    try {
+      // Abrimos la base de datos
+      const db = await inicializarBaseDatos();
+
+      // Buscamos el usuario
+      const usuario = await db.getFirstAsync(
+        "SELECT * FROM usuarios WHERE correo = ? AND password = ?",
+        correo,
+        password,
+      );
+
+      // Si encontramos el usuario
+      if (usuario) {
+        Alert.alert("Éxito", "Bienvenido");
+        setCorreo("");
+        setPassword("");
+        navigation.navigate("Home");
+      } else {
+        // Si no encontramos el usuario
+        Alert.alert("Error", "El correo o la contraseña son incorrectos");
+      }
+    } catch (error) {
+      console.log("Error al iniciar sesión:", error);
+      Alert.alert("Error", "No se pudo iniciar sesión");
+    }
   };
 
   return (
@@ -26,19 +60,32 @@ export default function Login({ navigation }: any) {
         value={correo}
         onChangeText={setCorreo}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry={true}
-        value={contrasena}
-        onChangeText={setContrasena}
-      />
+      <View style={styles.contenedorPassword}>
+        <TextInput
+          style={styles.inputPassword}
+          placeholder="Contraseña"
+          secureTextEntry={!mostrarPassword}
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        <TouchableOpacity
+          onPress={() => setMostrarPassword(!mostrarPassword)}
+          style={styles.botonOjo}
+
+        >
+         <Ionicons
+    name={mostrarPassword ? "eye-off-outline" : "eye-outline"}
+    size={24}
+    color="black"
+  />
+
+        </TouchableOpacity>
+
+      </View>
 
       <View style={styles.contenedorBotones}>
-        <TouchableOpacity
-          style={styles.boton}
-          onPress={() => navigation.navigate("Home")}
-        >
+        <TouchableOpacity style={styles.boton} onPress={iniciarSesion}>
           <Text style={styles.textoBoton}>INGRESAR</Text>
         </TouchableOpacity>
 
@@ -59,31 +106,32 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#C4C4F0",
+    backgroundColor: "#121212",
   },
 
   titulo: {
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 30,
+    color: "white",
   },
 
   input: {
     width: 300,
-  height: 50,
-  backgroundColor: "white",
-  borderWidth: 1,
-  borderColor: "#CCCCCC",
-  borderRadius: 10,
-  paddingHorizontal: 15,
-  marginBottom: 15,
-  fontSize: 16,
+    height: 50,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#CCCCCC",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
   },
 
   boton: {
     width: 140,
     height: 50,
-    backgroundColor: "#3120CE",
+    backgroundColor: "white",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -98,13 +146,37 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#3120CE",
+    backgroundColor: "white",
     borderRadius: 10,
   },
 
   registro: {
     color: "black",
-    fontSize: 16,
+    fontSize: 14,
+  },
+
+  contenedorPassword: {
+    width: 300,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderWidth: 2,
+    borderColor: "black",
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+
+  inputPassword: {
+    flex: 1,
+    height: 46,
+    paddingHorizontal: 15,
+  },
+
+  verPassword: {
+    marginRight: 12,
+    color: "blue",
+    fontWeight: "bold",
   },
 
   contenedorBotones: {
@@ -113,4 +185,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 20,
   },
+  botonOjo: {
+  padding: 10,
+},
+
 });

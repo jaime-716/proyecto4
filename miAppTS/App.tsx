@@ -3,9 +3,14 @@ import { StyleSheet, Text, View, Button } from "react-native";
 //import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //import { NavigationContainer } from '@react-navigation/native';
 import StackNavigator from "./src/navegacion/StackNavigator";
+import { SQLiteProvider } from "expo-sqlite";
 
 export default function App() {
-  return <StackNavigator />;
+  return (
+    <SQLiteProvider databaseName="usuarios.db">
+      <StackNavigator />
+    </SQLiteProvider>
+  );
 }
 
 const styles = StyleSheet.create({
