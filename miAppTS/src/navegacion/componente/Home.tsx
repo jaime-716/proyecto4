@@ -1,70 +1,66 @@
-import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
 import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-export default function Home() {
+import Menu from "./Menu";
+
+export default function Home({ navigation, route }: any) {
+  const usuarioId = route?.params?.usuarioId;
+  const correo = route?.params?.correo;
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.botonTexto}>
-        <Text style={styles.textoBoton}>Clientes</Text>
-      </TouchableOpacity>
+      <Menu
+        navigation={navigation}
+        tipo="CLIENTE"
+        usuarioId={usuarioId}
+        correo={correo}
+      />
 
-      <TouchableOpacity style={styles.botonInput}>
-        <Text style={styles.textoBoton}>Productos</Text>
-      </TouchableOpacity>
+      <View style={styles.contenido}>
+        <Text style={styles.titulo}>Inicio</Text>
 
-      <TouchableOpacity style={styles.botonBoton}>
-        <Text style={styles.textoBoton}>Boton</Text>
-      </TouchableOpacity>
+        <Text style={styles.subtitulo}>Bienvenido</Text>
 
+        <Text style={styles.mensaje}>
+          Desde el menú puedes consultar tu perfil y realizar tus compras.
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#0E0B0BE5",
     flex: 1,
-    alignItems: "flex-start",
-    gap: 10,
-    paddingHorizontal: 10,
-    paddingTop: 30,
+    backgroundColor: "#121212",
+    padding: 20,
   },
 
-  botonTexto: {
-    backgroundColor: "white",
-    width: 100,
-    padding: 5,
-    borderRadius: 10,
-    marginBottom: 10,
+  contenido: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
-  textoBoton: {
-    color: "#010D13",
+  titulo: {
+    color: "white",
+    fontSize: 30,
+    fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 10,
+  },
+
+  subtitulo: {
+    color: "#CCCCCC",
+    fontSize: 20,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+
+  mensaje: {
+    color: "#CCCCCC",
     fontSize: 16,
-  },
-
-  botonInput: {
-    backgroundColor: "white",
-    width: 100,
-    padding: 5,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  botonBoton: {
-    backgroundColor: "white",
-    width: 100,
-    padding: 5,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  botonHome: {
-    backgroundColor: "#EC1330",
-    width: 250,
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+    textAlign: "center",
+    lineHeight: 24,
   },
 });

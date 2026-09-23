@@ -14,35 +14,74 @@ export default function Registro() {
   const [password, setPassword] = useState("");
 
   const registrarse = async () => {
-    
+    const correoLimpio = correo.trim().toLowerCase();
+
     if (correo === "" || password === "") {
       Alert.alert("Error", "Debes llenar todos los campos");
       return;
     }
 
+    // Validar formato del correo
+    const expresionCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!expresionCorreo.test(correoLimpio)) {
+      Alert.alert("Error", "Ingresa un correo electrónico válido");
+      return;
+    }
+
+    // Validar contraseña
+    const expresionPassword = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
+    if (!expresionPassword.test(password)) {
+      Alert.alert(
+        "Error",
+        "La contraseña debe tener mínimo 6 caracteres e incluir letras y números",
+      );
+      return;
+    }
+
     try {
-      // Abrimos la base de datos
       const db = await inicializarBaseDatos();
-      // Guardamos el usuario
-      await db.runAsync(
-        "INSERT INTO usuarios (correo, password) VALUES (?, ?)",
-        correo,
-        password,
+
+      // Revisar si el correo ya está registrado
+      const usuarioExistente = await db.getFirstAsync(
+        "SELECT id FROM usuarios WHERE correo = ?",
+        correoLimpio,
       );
 
-      Alert.alert("Éxito", "Usuario registrado correctamente");
+      if (usuarioExistente) {
+        Alert.alert("Error", "Ya existe una cuenta registrada con este correo");
+        return;
+      }
 
-      // Limpiamos los campos
+      // Crear usuario pendiente
+      await db.runAsync(
+        `INSERT INTO usuarios
+       (correo, password, estado, rol)
+       VALUES (?, ?, ?, ?)`,
+        correoLimpio,
+        password,
+        "PENDIENTE",
+        null,
+      );
+
+      Alert.alert(
+        "Registro exitoso",
+        "Tu cuenta fue creada y se encuentra pendiente de aprobación por un administrador.",
+      );
+
       setCorreo("");
       setPassword("");
     } catch (error) {
       console.log("ERROR REAL:", error);
-      Alert.alert("Error", "Ocurrió un error al registrar");
+
+      Alert.alert("Error", "Ocurrió un error al registrar el usuario");
     }
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.titulo}>Registro</Text>
       <View style={styles.cuadro}>
         <TextInput
           style={styles.input}
@@ -61,7 +100,7 @@ export default function Registro() {
         />
 
         <TouchableOpacity style={styles.boton} onPress={registrarse}>
-          <Text style={styles.textoBoton}>Registrarse</Text>
+          <Text style={styles.textoBoton}>REGISTRARSE</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -79,11 +118,11 @@ const styles = StyleSheet.create({
   cuadro: {
     width: 350,
     padding: 25,
-    backgroundColor: "#424242",
+    backgroundColor: "#070707",
     borderRadius: 15,
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "black",
+    borderColor: "white",
   },
 
   input: {
@@ -100,7 +139,7 @@ const styles = StyleSheet.create({
 
   boton: {
     width: 110,
-    height: 30,
+    height: 50,
     backgroundColor: "white",
     borderWidth: 2,
     borderColor: "black",
@@ -112,5 +151,12 @@ const styles = StyleSheet.create({
   textoBoton: {
     color: "black",
     fontSize: 14,
+  },
+
+  titulo: {
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 30,
+    color: "white",
   },
 });
