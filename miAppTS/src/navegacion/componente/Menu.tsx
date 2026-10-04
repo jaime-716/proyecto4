@@ -6,6 +6,10 @@ import {
   Text,
 } from "react-native";
 
+// Define las propiedades que recibe el componente Menu
+// navigation: permite desplazarse entre pantallas
+// tipo: determina si el usuario es ADMIN o CLIENTE
+// usuarioId y correo: datos del usuario autenticado que se conservan durante la navegación
 type Props = {
   navigation: any;
   tipo: "ADMIN" | "CLIENTE";
@@ -13,12 +17,17 @@ type Props = {
   correo?: string;
 };
 
+// Componente principal del menú de navegación
 export default function Menu({
   navigation,
   tipo,
   usuarioId,
   correo,
 }: Props) {
+
+ // Función encargada de cerrar la sesión del usuario
+  // Utiliza reset para eliminar el historial de navegación
+  // y regresar nuevamente a la pantalla de Login
   const cerrarSesion = () => {
     navigation.reset({
       index: 0,
@@ -27,9 +36,20 @@ export default function Menu({
   };
 
   return (
+
+    // Contenedor principal del menú
     <View style={styles.menu}>
+
+{/*Opciones disponibles para usuarios con rol CLIENTE
+Estas opciones permiten acceder a las funcionalidades 
+principales del cliente dentro de la aplicación*/}
+      
       {tipo === "CLIENTE" && (
         <>
+
+{/*Botón Inicio:
+Permite regresar a la pantalla principal del cliente.
+Se envían los datos del usuario para conservar la sesión.*/}
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -42,6 +62,11 @@ export default function Menu({
             <Text style={styles.texto}>Inicio</Text>
           </TouchableOpacity>
 
+
+{/*Botón Perfil:
+Permite acceder a la información personal del cliente.
+Envía el usuario identificado y el correo registrado.*/}
+          
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -55,6 +80,11 @@ export default function Menu({
             <Text style={styles.texto}>Perfil</Text>
           </TouchableOpacity>
 
+  
+{/*/Botón Comprar:
+Permite ingresar al módulo donde el cliente
+podrá realizar compras dentro del sistema.*/}
+          
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -69,8 +99,16 @@ export default function Menu({
         </>
       )}
 
+   
+{/* Opciones disponibles para usuarios con rol ADMIN
+Permiten gestionar la información general del sistema*/}
+      
       {tipo === "ADMIN" && (
         <>
+ 
+{/* Botón Inicio:
+Dirige al panel principal del administrador.*/}
+          
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -80,6 +118,10 @@ export default function Menu({
             <Text style={styles.texto}>Inicio</Text>
           </TouchableOpacity>
 
+
+{/* Botón Clientes:
+Permite acceder al módulo donde el administrador
+puede consultar los clientes registrados.*/}
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -89,6 +131,9 @@ export default function Menu({
             <Text style={styles.texto}>Clientes</Text>
           </TouchableOpacity>
 
+
+{/* Botón Productos:
+Permite ingresar al módulo de administración de productos e inventario.*/}
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -98,6 +143,9 @@ export default function Menu({
             <Text style={styles.texto}>Productos</Text>
           </TouchableOpacity>
 
+{/*Botón Compras:
+Permite acceder al módulo administrativo
+para consultar las compras realizadas.*/}
           <TouchableOpacity
             style={styles.boton}
             onPress={() =>
@@ -109,6 +157,9 @@ export default function Menu({
         </>
       )}
 
+{/*Botón Salir:
+Disponible para todos los usuarios.
+Permite cerrar la sesión y volver al Login.*/}
       <TouchableOpacity
         style={styles.botonSalir}
         onPress={cerrarSesion}

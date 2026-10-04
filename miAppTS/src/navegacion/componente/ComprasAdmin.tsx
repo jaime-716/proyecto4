@@ -11,6 +11,12 @@ import Menu from "./Menu";
 import { useFocusEffect } from "@react-navigation/native";
 import { inicializarBaseDatos } from "../../database/database";
 
+
+// Define la estructura de información
+// que tendrá cada compra consultada.
+//
+// Estos datos vienen principalmente
+// de las tablas Encabezado y Cliente.
 type Compra = {
   id: number;
   idCliente: number;
@@ -21,13 +27,52 @@ type Compra = {
   correo: string;
 };
 
+// Componente encargado de mostrar al administrador
+// todas las compras realizadas por los clientes.
+//
+// Permite consultar:
+//
+// - Número de compra.
+// - Cliente asociado.
+// - Fecha.
+// - Total.
+// - Detalles de productos adquiridos.
 export default function ComprasAdmin({ navigation }: any) {
+
+// Estado encargado de almacenar
+// la lista de compras obtenidas desde SQLite.
+//
+// Inicialmente comienza vacío y luego
+// se llena mediante la consulta a la base de datos.  
   const [compras, setCompras] = useState<Compra[]>([]);
 
+// Función encargada de consultar
+// todas las compras registradas.
+//
+// Obtiene información de dos tablas:
+//
+// Encabezado:
+// Guarda la información general de la compra.
+//
+// Cliente:
+// Guarda los datos del usuario que compró.
   const cargarCompras = async () => {
     try {
       const db = await inicializarBaseDatos();
 
+
+// Esta consulta utiliza INNER JOIN.
+//
+// INNER JOIN permite unir información
+// de dos tablas relacionadas.
+//
+// En este caso:
+//
+// Encabezado
+//       |
+//       | idCliente
+//       ↓
+// Cliente
       const resultado = await db.getAllAsync<Compra>(
         `
         SELECT
@@ -44,15 +89,30 @@ export default function ComprasAdmin({ navigation }: any) {
         ORDER BY Encabezado.id DESC
         `,
       );
-
+// Guarda las compras obtenidas dentro del estado.
+//
+// Al cambiar este estado React actualiza
+// automáticamente la pantalla mostrando
+// la información nueva.
       setCompras(resultado);
+
     } catch (error) {
+// Muestra el error en consola
+  // para facilitar la búsqueda del problema.
       console.log("Error cargando compras:", error);
 
+// Mensaje visible para el administrador.
       Alert.alert("Error", "No se pudieron cargar las compras");
     }
   };
 
+// Ejecuta cargarCompras() cada vez que
+// la pantalla vuelve a estar activa.
+//
+// Es útil porque si un cliente realiza
+// una compra nueva, el administrador
+// verá la información actualizada
+// al regresar a esta pantalla.
   useFocusEffect(
     useCallback(() => {
       cargarCompras();
@@ -60,26 +120,59 @@ export default function ComprasAdmin({ navigation }: any) {
   );
 
   return (
+// Construcción de la interfaz gráfica
+// del módulo administrativo de compras.
+
     <View style={styles.container}>
+
+{/*Muestra el menú general del administrador. 
+Permite navegar entre los módulos administrativos.*/}
       <Menu navigation={navigation} tipo="ADMIN" />
       <Text style={styles.titulo}>Compras realizadas</Text>
 
+{/*Verifica si existen compras registradas.
+Si la lista está vacía muestra un mensaje.
+Si tiene datos muestra el listado.*/}
       {compras.length === 0 ? (
         <Text style={styles.sinCompras}>No hay compras registradas.</Text>
       ) : (
+
+// FlatList permite mostrar
+// una lista dinámica de compras.
+//
+// Cada elemento corresponde
+// a una compra almacenada en SQLite.
         <FlatList
           data={compras}
+
+// identificador único
+// para controlar cada elemento de la lista.
           keyExtractor={(item) => item.id.toString()}
+
+// Define cómo se muestra
+// cada compra en pantalla.
           renderItem={({ item }) => (
+
+// Contenedor visual que representa
+// una compra individual.
             <View style={styles.tarjeta}>
+
+ {/*Muestra el identificador asignado a la compra.*/}
               <Text style={styles.numeroCompra}>Compra #{item.id}</Text>
 
+ {/*Muestra quién realizó la compra.*/}
               <Text style={styles.texto}>
                 Cliente: {item.nombre} {item.apellido}
               </Text>
 
+{/*Muestra el correo asociado al cliente.*/}
               <Text style={styles.texto}>Correo: {item.correo}</Text>
 
+{/*Convierte la fecha almacenada 
+en SQLite a un formato legible.
+
+Si no existe fecha muestra
+ "Sin fecha".*/}
               <Text style={styles.texto}>
                 Fecha:{" "}
                 {item.fecha
@@ -87,8 +180,15 @@ export default function ComprasAdmin({ navigation }: any) {
                   : "Sin fecha"}
               </Text>
 
+{/*Muestra el valor total de la compra realizada.*/}
               <Text style={styles.total}>Total: ${item.total}</Text>
 
+ {/*Permite abrir la pantalla
+DetallesAdmin. 
+
+Envía el id de la compra,
+para consultar los productos
+asociados a esa compra.*/}
               <TouchableOpacity
                 style={styles.boton}
                 onPress={() =>

@@ -7,27 +7,46 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+
+// Menú reutilizable para el usuario cliente.
 import Menu from "./Menu";
 
+// Menú reutilizable para el usuario cliente.
 import { inicializarBaseDatos } from "../../database/database";
 
+// Pantalla encargada de administrar el perfil del cliente.
+//
+// Funciones principales:
+// - Crear perfil en el primer ingreso.
+// - Consultar información existente.
+// - Actualizar datos personales.
+// - Mostrar menú del cliente cuando ya está registrado.
 export default function Cliente({ route, navigation }: any) {
   const { usuarioId, correo, primerIngreso } = route.params;
 
+// Estados utilizados para controlar los datos personales.
+// clienteId permite saber si:
+// - Existe un perfil y se debe actualizar.
+// - No existe perfil y se debe crear.
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [correoCliente, setCorreoCliente] = useState(correo);
   const [clienteId, setClienteId] = useState<number | null>(null);
 
+  // Consulta la información del cliente almacenada
+// en la base de datos utilizando el usuario autenticado.
   const cargarCliente = async () => {
     try {
       const db = await inicializarBaseDatos();
 
+      // Busca el perfil asociado al usuario actual.
       const cliente: any = await db.getFirstAsync(
         "SELECT * FROM Cliente WHERE idUsuario = ?",
         usuarioId,
       );
 
+      // Si existe información del cliente,
+// carga los datos en los campos del formulario.
       if (cliente) {
         setClienteId(cliente.id);
         setNombre(cliente.nombre);
@@ -39,20 +58,34 @@ export default function Cliente({ route, navigation }: any) {
     }
   };
 
+  // Ejecuta la consulta automáticamente
+// cuando la pantalla Cliente es abierta.
   useEffect(() => {
     cargarCliente();
   }, []);
 
+// Guarda la información del cliente.
+// Si existe un registro:
+// actualiza los datos.
+// Si no existe:
+// crea un nuevo perfil.
   const guardarCliente = async () => {
+
+    // Elimina espacios innecesarios
+// y normaliza el correo a minúsculas.
     const nombreLimpio = nombre.trim();
     const apellidoLimpio = apellido.trim();
     const correoLimpio = correoCliente.trim().toLowerCase();
 
+    // Verifica que todos los campos requeridos
+// tengan información antes de guardar.
     if (nombreLimpio === "" || apellidoLimpio === "" || correoLimpio === "") {
       Alert.alert("Error", "Debes completar todos los campos");
       return;
     }
 
+    // Expresión utilizada para validar
+// que el correo tenga una estructura correcta.
     const validarCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!validarCorreo.test(correoLimpio)) {
@@ -61,11 +94,17 @@ export default function Cliente({ route, navigation }: any) {
     }
 
     try {
+      // Inicializa la conexión SQLite
+// para realizar operaciones de almacenamiento.
       const db = await inicializarBaseDatos();
 
+      // Si el cliente ya tiene información registrada,
+// se actualizan sus datos personales.
       if (clienteId) {
-        // Actualizar datos
+        
         await db.runAsync(
+          // Modifica nombre, apellido y correo
+// del registro seleccionado.
           `UPDATE Cliente
      SET nombre = ?, apellido = ?, correo = ?
      WHERE id = ?`,
@@ -81,11 +120,18 @@ export default function Cliente({ route, navigation }: any) {
             onPress: () => navigation.goBack(),
           },
         ]);
+
+        // Si el cliente todavía no tiene perfil,
+// crea un nuevo registro en la tabla Cliente.
       } else {
-        // Primer registro del cliente
+        
+        // Guarda la fecha y hora de creación del perfil.
         const fechaActual = new Date().toISOString();
 
         await db.runAsync(
+
+          // Relaciona el perfil del cliente
+// con el usuario autenticado.
           `INSERT INTO Cliente
           (idUsuario, nombre, apellido, correo, fecha)
           VALUES (?, ?, ?, ?, ?)`,
@@ -104,7 +150,8 @@ export default function Cliente({ route, navigation }: any) {
         await cargarCliente();
       }
 
-      // Si es el primer ingreso, pasa al Home
+      // Después de completar el perfil por primera vez,
+// envía al cliente al menú principal.
       if (primerIngreso) {
         navigation.replace("Home", {
           usuarioId,
@@ -123,6 +170,12 @@ export default function Cliente({ route, navigation }: any) {
 
   return (
     <View style={styles.container}>
+
+{/*Muestra el menú únicamente cuando
+el usuario ya completó su perfil.
+
+Durante el primer registro se oculta
+para obligar a completar los datos. */}
       {!primerIngreso && (
         <Menu
           navigation={navigation}
@@ -133,6 +186,14 @@ export default function Cliente({ route, navigation }: any) {
       )}
 
       <Text style={styles.titulo}>
+
+{/*Cambia el título dependiendo del estado:
+
+Sin registro:
+Completar Perfil.
+
+Con registro:
+Mi Perfil. */}
         {clienteId ? "Mi Perfil" : "Completar Perfil"}
       </Text>
 
@@ -142,6 +203,7 @@ export default function Cliente({ route, navigation }: any) {
         </Text>
       )}
 
+{/* Permiten ingresar y modificar la información personal del cliente.*/}
       <TextInput
         style={styles.input}
         placeholder="Nombre"
@@ -156,13 +218,15 @@ export default function Cliente({ route, navigation }: any) {
         onChangeText={setApellido}
       />
 
+{/*El correo no puede modificarse porque pertenece al usuario registrado. */}
       <TextInput
         style={styles.input}
         placeholder="Correo"
         value={correoCliente}
         editable={false}
       />
-
+{/*Ejecuta la función encargada
+de crear o actualizar el perfil. */}
       <TouchableOpacity style={styles.boton} onPress={guardarCliente}>
         <Text style={styles.textoBoton}>
           {clienteId ? "Actualizar" : "Guardar"}
